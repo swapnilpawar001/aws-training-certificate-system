@@ -1,0 +1,17 @@
+{
+  "name": "aws-training-certificate-system",
+  "version": "1.0.0",
+  "description": "AWS Training Center Certificate Management System",
+  "main": "index.js",
+  "scripts": {
+    "dev": "http-server frontend -p 8080 -c-1",
+    "build": "echo 'Build process coming soon'",
+    "test": "echo 'Tests coming soon'"
+  },
+  "keywords": ["aws", "training", "certificates"],
+  "author": "AWS Training Center",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
