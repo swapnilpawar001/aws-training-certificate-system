@@ -4,100 +4,119 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AWS Training Certificate System</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; }
-        .container { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-width: 400px; width: 100%; }
-        h1 { text-align: center; color: #333; margin-bottom: 30px; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 5px; color: #555; font-weight: bold; }
-        input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; }
-        input:focus { outline: none; border-color: #667eea; }
-        button { width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; }
-        button:hover { transform: translateY(-2px); }
-        .message { padding: 15px; margin: 20px 0; border-radius: 8px; text-align: center; display: none; }
-        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .loading { text-align: center; color: #667eea; font-style: italic; }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <h1>🏆 AWS Training Certificate System</h1>
-        <form id="certificateForm">
-            <div class="form-group">
-                <label for="studentName">Full Name</label>
-                <input type="text" id="studentName" required placeholder="Enter your full name">
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <i class="fas fa-award logo-icon"></i>
+                    <div class="logo-text">
+                        <h1>AWS Training Certificate</h1>
+                        <p>Professional Certification System</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline" onclick="showAdminPanel()">
+                        <i class="fas fa-cog"></i> Admin
+                    </button>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="batchNumber">Batch Number</label>
-                <input type="text" id="batchNumber" required placeholder="e.g., AWS-2024-001">
+        </header>
+
+        <main class="main-content">
+            <div class="certificate-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-user-graduate"></i> Student Certificate Download</h2>
+                    <p>Enter your credentials to download your completion certificate</p>
+                </div>
+
+                <form id="certificateForm" class="certificate-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="studentName">
+                                <i class="fas fa-user"></i> Full Name
+                            </label>
+                            <input type="text" id="studentName" name="student_name" required 
+                                   placeholder="Enter your full name as registered">
+                            <span class="help-text">Enter your name exactly as it appears in your registration</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="batchNumber">
+                                <i class="fas fa-users"></i> Batch Number
+                            </label>
+                            <input type="text" id="batchNumber" name="batch_number" required 
+                                   placeholder="e.g., AWS-2024-001" pattern="AWS-\d{4}-\d{3}">
+                            <span class="help-text">Format: AWS-YYYY-NNN (e.g., AWS-2024-001)</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="sixerclassId">
+                                <i class="fas fa-id-card"></i> SixerClass ID
+                            </label>
+                            <input type="text" id="sixerclassId" name="sixerclass_id" required 
+                                   placeholder="e.g., SIX001" pattern="SIX\d{3}">
+                            <span class="help-text">Your unique SixerClass identifier</span>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-large">
+                            <i class="fas fa-download"></i> Download Certificate
+                        </button>
+                    </div>
+                </form>
+
+                <div class="info-section">
+                    <div class="info-card">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="info-content">
+                            <h4>How it works</h4>
+                            <p>Enter your credentials exactly as they appear in your registration. Your certificate will be generated instantly and downloaded to your device.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="sixerclassId">SixerClass ID</label>
-                <input type="text" id="sixerclassId" required placeholder="e.g., SIX001">
+        </main>
+
+        <!-- Success Modal -->
+        <div id="successModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-check-circle"></i> Success!</h3>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p>Your certificate has been generated successfully.</p>
+                    <div class="certificate-preview" id="certificatePreview">
+                        <!-- Certificate preview will appear here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="downloadBtn" class="btn btn-success">
+                        <i class="fas fa-download"></i> Download Certificate
+                    </button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+                </div>
             </div>
-            <button type="submit">Download Certificate</button>
-        </form>
-        <div id="message" class="message"></div>
-        <div id="loading" class="loading" style="display: none;">Generating certificate...</div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="spinner"></div>
+            <p>Generating your certificate...</p>
+        </div>
+
+        <!-- Error Messages -->
+        <div id="errorMessage" class="error-message" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="errorText"></span>
+        </div>
     </div>
-    <script>
-        document.getElementById('certificateForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = {
-                student_name: document.getElementById('studentName').value.trim(),
-                batch_number: document.getElementById('batchNumber').value.trim(),
-                sixerclass_id: document.getElementById('sixerclassId').value.trim()
-            };
-            
-            const messageDiv = document.getElementById('message');
-            const loadingDiv = document.getElementById('loading');
-            messageDiv.style.display = 'none';
-            loadingDiv.style.display = 'block';
-            
-            try {
-                const response = await fetch('/api/authenticate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
-                
-                const result = await response.json();
-                
-                if (response.ok && result.success) {
-                    messageDiv.className = 'message success';
-                    messageDiv.textContent = '✅ Authentication successful! Generating certificate...';
-                    
-                    // Generate and download certificate
-                    const downloadResponse = await fetch('/api/download-certificate', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' }
-                    });
-                    
-                    const downloadResult = await downloadResponse.json();
-                    
-                    if (downloadResponse.ok && downloadResult.success) {
-                        messageDiv.textContent = '✅ Certificate generated! Downloading...';
-                        window.open(downloadResult.download_url, '_blank');
-                        setTimeout(() => {
-                            document.getElementById('certificateForm').reset();
-                            messageDiv.style.display = 'none';
-                        }, 2000);
-                    } else {
-                        messageDiv.className = 'message error';
-                        messageDiv.textContent = '❌ Certificate generation failed';
-                    }
-                } else {
-                    messageDiv.className = 'message error';
-                    messageDiv.textContent = result.error || 'Authentication failed';
-                }
-            } catch (error) {
-                messageDiv.className = 'message error';
-                messageDiv.textContent = 'Network error. Please check your connection.';
-            } finally {
-                loadingDiv.style.display = 'none';
-            }
-        });
-    </script>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>
