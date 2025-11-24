@@ -1,4 +1,0 @@
-  File "/workspaces/aws-training-certificate-system/app_production.py", line 175
-    try:
-    ^
-IndentationError: expected an indented block after function definition on line 174
