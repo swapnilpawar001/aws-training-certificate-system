@@ -8,7 +8,7 @@ class CertificateApp {
     }
 
     init() {
-        // this.setupEventListeners();
+        this.setupEventListeners();
         this.setupValidation();
         this.setupModalHandlers();
         this.setupKeyboardNavigation();
@@ -225,12 +225,12 @@ class CertificateApp {
 
     showLoading(show) {
         this.isLoading = show;
-        const submitBtn = document.getElementById("submitBtn");
         const loadingDiv = document.getElementById('loadingOverlay');
+        const submitBtn = document.getElementById('submitBtn');
         
         if (show) {
             loadingDiv.style.display = 'flex';
-            if (!submitBtn) { console.error("❌ submitBtn not found in DOM"); return; } submitBtn.disabled = true;
+            submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
         } else {
             loadingDiv.style.display = 'none';
@@ -430,24 +430,3 @@ const logger = {
     error: (message, ...args) => console.error(`[ERROR] ${message}`, ...args),
     warn: (message, ...args) => console.warn(`[WARN] ${message}`, ...args)
 };
-
-// Global app instance
-let certApp;
-
-document.addEventListener("DOMContentLoaded", () => {
-    certApp = new CertificateApp();
-    console.log("✅ CertificateApp initialized globally");
-
-    // Cache submit button after DOM ready
-    const submitBtn = document.getElementById("submitBtn");
-    // Manual form binding
-    const form = document.getElementById("certificateForm");
-    if (form) {
-        form.addEventListener("submit", (e) => {
-            e.preventDefault();
-            certApp.handleSubmit(e);
-        });
-    } else {
-        console.error("❌ certificateForm not found – cannot bind listener");
-    }
-});

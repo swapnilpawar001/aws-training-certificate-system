@@ -1,0 +1,31 @@
+INFO:__main__:✅ Loaded 6 students from /workspaces/aws-training-certificate-system/data/excel-samples/student-data.xlsx
+🚀 Starting AWS Training Certificate Web Application (Production Version)
+📍 URL: http://localhost:5000
+✨ Features: Production-ready authentication, certificate generation, admin dashboard
+📊 Students loaded: 6
+🔧 Production features: Enhanced error handling, logging, security validation
+ * Serving Flask app 'app_production'
+ * Debug mode: off
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.0.1.20:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:127.0.0.1 - - [24/Nov/2025 07:25:20] "GET /api/check-status HTTP/1.1" 200 -
+WARNING:__main__:❌ Authentication failed for: John Doe Smith, AWS-2024-001, SIX001
+INFO:werkzeug:127.0.0.1 - - [24/Nov/2025 07:26:23] "[33mPOST /api/authenticate HTTP/1.1[0m" 404 -
+INFO:werkzeug:127.0.0.1 - - [24/Nov/2025 07:26:51] "GET /api/students HTTP/1.1" 200 -
+INFO:__main__:✅ Student authenticated: Rahul Sharma (SIX001)
+INFO:werkzeug:127.0.0.1 - - [24/Nov/2025 07:27:21] "POST /api/authenticate HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [24/Nov/2025 07:29:15] "[31m[1mPOST /api/download-certificate HTTP/1.1[0m" 401 -
+INFO:__main__:✅ Student authenticated: Rahul Sharma (SIX001)
+INFO:werkzeug:127.0.0.1 - - [24/Nov/2025 07:33:10] "POST /api/authenticate HTTP/1.1" 200 -
+INFO:__main__:✅ Certificate generated: certificate_SIX001_Rahul_Sharma.txt
+INFO:__main__:✅ Certificate generated for download: certificate_SIX001_Rahul_Sharma.txt
+INFO:werkzeug:127.0.0.1 - - [24/Nov/2025 07:33:10] "POST /api/download-certificate HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [24/Nov/2025 07:35:37] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [24/Nov/2025 07:35:54] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [24/Nov/2025 07:36:11] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [24/Nov/2025 07:36:12] "GET /static/js/app.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [24/Nov/2025 07:36:12] "GET /static/css/style.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [24/Nov/2025 07:38:35] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -

@@ -172,42 +172,42 @@ Authorized Signature
             return None
     
     def generate_certificate_file(self, student_data):
-        """Generate certificate file"""
         try:
-            # Generate certificate content
-            content = self.generate_certificate_text(student_data)
-            if not content:
-                return None
-            
-            # Create filename
+            from PIL import Image, ImageDraw, ImageFont
+            import os
+            from werkzeug.utils import secure_filename
+
+            # Paths
+            template_path = 'data/certificate-templates/raw/certificate-template.png'
+            output_dir = app.config['CERTIFICATE_DIR']
             safe_name = secure_filename(student_data['student_name'].replace(' ', '_'))
-            filename = f"certificate_{student_data['sixerclass_id']}_{safe_name}.txt"
-            filepath = os.path.join(app.config['CERTIFICATE_DIR'], filename)
-            
-            # Write certificate content
-            with open(filepath, 'w', encoding='utf-8') as f:
-                f.write(content)
-            
+            from datetime import datetime
+            filename = f"certificate_{student_data['sixerclass_id']}_{safe_name}_{int(datetime.now().timestamp())}.png"
+            filepath = os.path.join(output_dir, filename.replace('.pdf', '.png'))
+
+            # Open template
+            with Image.open(template_path) as img:
+                draw = ImageDraw.Draw(img)
+
+                # Fonts
+                name_font = ImageFont.truetype("data/fonts/DejaVuSans.ttf", 36)
+                date_font = ImageFont.truetype("data/fonts/DejaVuSans.ttf", 22)
+
+                # Text positions
+                 # Final corrected positions
+                draw.text((405, 380), student_data['student_name'], font=name_font, fill="black")
+                draw.text((345, 515), str(student_data['batch_start_date']), font=date_font, fill="black")
+                draw.text((625, 515), str(student_data['batch_end_date']), font=date_font, fill="black")
+
+                # Save
+                img.save(filepath, quality=100)
+
             logger.info(f"✅ Certificate generated: {filename}")
             return filepath
-            
+
         except Exception as e:
-            logger.error(f"❌ Certificate file generation error: {e}")
+            logger.error(f"❌ Certificate generation error: {e}")
             return None
-    
-    def get_student_list(self):
-        """Get list of all students"""
-        if self.student_data is not None and not self.student_data.empty:
-            return self.student_data.to_dict('records')
-        return []
-    
-    def get_student_by_id(self, sixerclass_id):
-        """Get student by SixerClass ID"""
-        if self.student_data is not None and not self.student_data.empty:
-            student = self.student_data[self.student_data['sixerclass_id'] == sixerclass_id]
-            if not student.empty:
-                return student.iloc[0].to_dict()
-        return None
 
 # Initialize the application
 cert_app = ProductionCertificateApp()
@@ -302,25 +302,24 @@ def download_certificate():
 
 @app.route('/api/serve-certificate/<filename>')
 def serve_certificate(filename):
-    """Serve certificate file"""
     try:
         # Security validation
-        if not filename.startswith('certificate_') or not filename.endswith('.txt'):
+        if not filename.startswith('certificate_') or not filename.endswith('.png'):
             return jsonify({"error": "Invalid filename"}), 400
-        
+
         filepath = os.path.join(app.config['CERTIFICATE_DIR'], filename)
-        
+
         if os.path.exists(filepath):
             logger.info(f"✅ Serving certificate: {filename}")
             return send_file(filepath, as_attachment=True, download_name=filename)
         else:
             logger.warning(f"❌ Certificate file not found: {filename}")
             return jsonify({"error": "Certificate file not found"}), 404
-            
+
     except Exception as e:
         logger.error(f"❌ File serving error: {e}")
         return jsonify({"error": f"File serving failed: {str(e)}"}), 500
-
+    
 @app.route('/api/students', methods=['GET'])
 def get_students():
     """Get list of all students (for admin)"""

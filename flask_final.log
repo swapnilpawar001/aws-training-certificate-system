@@ -1,0 +1,18 @@
+INFO:__main__:✅ Loaded 6 students from /workspaces/aws-training-certificate-system/data/excel-samples/student-data.xlsx
+🚀 Starting AWS Training Certificate Web Application (Production Version)
+📍 URL: http://localhost:5000
+✨ Features: Production-ready authentication, certificate generation, admin dashboard
+📊 Students loaded: 6
+🔧 Production features: Enhanced error handling, logging, security validation
+ * Serving Flask app 'app_production'
+ * Debug mode: off
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.0.0.46:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:__main__:✅ Serving certificate: certificate_SIX001_Rahul_Sharma.png
+INFO:werkzeug:127.0.0.1 - - [24/Nov/2025 12:48:56] "GET /api/serve-certificate/certificate_SIX001_Rahul_Sharma.png HTTP/1.1" 200 -
+INFO:__main__:✅ Student authenticated: Rahul Sharma (SIX001)
+INFO:werkzeug:127.0.0.1 - - [24/Nov/2025 12:55:32] "POST /api/authenticate HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [24/Nov/2025 12:55:32] "[31m[1mGET /api/serve-certificate/certificate_SIX001_Rahul_Sharma.pdf HTTP/1.1[0m" 400 -
