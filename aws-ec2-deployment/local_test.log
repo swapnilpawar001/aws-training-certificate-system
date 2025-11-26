@@ -1,0 +1,15 @@
+2025-11-26 14:23:12,379 - app_production - INFO - ✅ Loaded 6 students from /workspaces/aws-training-certificate-system/aws-ec2-deployment/data/excel-samples/student-data.xlsx
+2025-11-26 14:23:12,382 - __main__ - INFO - 🚀 AWS Training Certificate System - AWS Deployment Ready
+ * Serving Flask app 'app_production'
+ * Debug mode: off
+2025-11-26 14:23:12,385 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.212:5001
+2025-11-26 14:23:12,385 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-11-26 14:23:14,785 - werkzeug - INFO - 127.0.0.1 - - [26/Nov/2025 14:23:14] "GET /api/check-status HTTP/1.1" 200 -
+2025-11-26 14:23:17,888 - werkzeug - INFO - 127.0.0.1 - - [26/Nov/2025 14:23:17] "GET / HTTP/1.1" 200 -
+2025-11-26 14:23:18,100 - werkzeug - INFO - 127.0.0.1 - - [26/Nov/2025 14:23:18] "GET /static/css/style.css HTTP/1.1" 200 -
+2025-11-26 14:23:18,120 - werkzeug - INFO - 127.0.0.1 - - [26/Nov/2025 14:23:18] "GET /static/js/app.js HTTP/1.1" 200 -
+2025-11-26 14:23:19,883 - werkzeug - INFO - 127.0.0.1 - - [26/Nov/2025 14:23:19] "GET /api/check-status HTTP/1.1" 200 -
+2025-11-26 14:23:48,267 - werkzeug - INFO - 127.0.0.1 - - [26/Nov/2025 14:23:48] "GET /api/check-status HTTP/1.1" 200 -

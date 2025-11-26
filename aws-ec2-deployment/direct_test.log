@@ -1,0 +1,6 @@
+2025-11-26 14:23:45,837 - app_production - INFO - ✅ Loaded 6 students from /workspaces/aws-training-certificate-system/aws-ec2-deployment/data/excel-samples/student-data.xlsx
+2025-11-26 14:23:45,839 - __main__ - INFO - 🚀 AWS Training Certificate System - AWS Deployment Ready
+ * Serving Flask app 'app_production'
+ * Debug mode: off
+Address already in use
+Port 5001 is in use by another program. Either identify and stop that program, or start the server with a different port.
