@@ -1,0 +1,26 @@
+INFO:__main__:✅ Loaded 6 students from ../data/excel-samples/student-data.xlsx
+INFO:__main__:🚀 Starting AWS Training Certificate System - Final Perfect PDF Version
+INFO:__main__:📍 Using perfect coordinates: Name(405,400) Dates(345,277)(625,277)
+ * Serving Flask app 'app'
+ * Debug mode: off
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.0.4.103:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:127.0.0.1 - - [27/Nov/2025 10:39:07] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [27/Nov/2025 10:39:08] "GET /static/css/style.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [27/Nov/2025 10:39:08] "GET /static/js/app.js HTTP/1.1" 200 -
+WARNING:__main__:❌ Authentication failed for: Neha Gupta
+INFO:werkzeug:127.0.0.1 - - [27/Nov/2025 10:39:34] "[33mPOST /api/authenticate HTTP/1.1[0m" 404 -
+WARNING:__main__:❌ Authentication failed for: Neha Gupta
+INFO:werkzeug:127.0.0.1 - - [27/Nov/2025 10:39:37] "[33mPOST /api/authenticate HTTP/1.1[0m" 404 -
+WARNING:__main__:❌ Authentication failed for: Neha Gupta
+INFO:werkzeug:127.0.0.1 - - [27/Nov/2025 10:39:38] "[33mPOST /api/authenticate HTTP/1.1[0m" 404 -
+INFO:__main__:✅ Student authenticated: Rahul Sharma
+INFO:werkzeug:127.0.0.1 - - [27/Nov/2025 10:39:54] "POST /api/authenticate HTTP/1.1" 200 -
+INFO:__main__:✅ Final perfect PDF certificate generated: certificate_SIX001_Rahul_Sharma.pdf
+INFO:__main__:📍 Perfect positions used: Name(405,400) Dates(345,277)(625,277)
+INFO:werkzeug:127.0.0.1 - - [27/Nov/2025 10:39:54] "POST /api/download-certificate HTTP/1.1" 200 -
+INFO:__main__:✅ Serving perfect PDF certificate: certificate_SIX001_Rahul_Sharma.pdf
+INFO:werkzeug:127.0.0.1 - - [27/Nov/2025 10:39:54] "GET /api/serve-certificate/certificate_SIX001_Rahul_Sharma.pdf HTTP/1.1" 200 -

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS Training Certificate System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <i class="fas fa-award logo-icon"></i>
+                    <div class="logo-text">
+                        <h1>AWS Training Certificate</h1>
+                        <p>Professional Certification System</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline" onclick="showAdminPanel()">
+                        <i class="fas fa-cog"></i> Admin
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="certificate-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-user-graduate"></i> Student Certificate Download</h2>
+                    <p>Enter your credentials to download your completion certificate</p>
+                </div>
+
+                <form id="certificateForm" class="certificate-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="studentName">
+                                <i class="fas fa-user"></i> Full Name
+                            </label>
+                            <input type="text" id="studentName" name="student_name" required 
+                                   placeholder="Enter your full name as registered">
+                            <span class="help-text">Enter your name exactly as it appears in your registration</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="batchNumber">
+                                <i class="fas fa-users"></i> Batch Number
+                            </label>
+                            <input type="text" id="batchNumber" name="batch_number" required 
+                                   placeholder="e.g., AWS-2024-001" pattern="AWS-\d{4}-\d{3}">
+                            <span class="help-text">Format: AWS-YYYY-NNN (e.g., AWS-2024-001)</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="sixerclassId">
+                                <i class="fas fa-id-card"></i> SixerClass ID
+                            </label>
+                            <input type="text" id="sixerclassId" name="sixerclass_id" required 
+                                   placeholder="e.g., SIX001" pattern="SIX\d{3}">
+                            <span class="help-text">Your unique SixerClass identifier</span>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" id="submitBtn" class="btn btn-primary btn-large">
+                            <i class="fas fa-download"></i> Download Certificate
+                        </button>
+                    </div>
+                </form>
+
+                <div class="info-section">
+                    <div class="info-card">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="info-content">
+                            <h4>How it works</h4>
+                            <p>Enter your credentials exactly as they appear in your registration. Your certificate will be generated instantly and downloaded to your device.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Success Modal -->
+        <div id="successModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-check-circle"></i> Success!</h3>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p>Your certificate has been generated successfully.</p>
+                    <div class="certificate-preview" id="certificatePreview">
+                        <!-- Certificate preview will appear here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="downloadBtn" class="btn btn-success">
+                        <i class="fas fa-download"></i> Download Certificate
+                    </button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="spinner"></div>
+            <p>Generating your certificate...</p>
+        </div>
+
+        <!-- Error Messages -->
+        <div id="errorMessage" class="error-message" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="errorText"></span>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
