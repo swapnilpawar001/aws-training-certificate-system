@@ -316,13 +316,111 @@ def get_students():
         "students": students_data
     })
 
-# ADMIN ROUTES
+# ADMIN ROUTES WITH AUTHENTICATION
 @app.route('/admin')
 def admin_redirect():
-    return redirect('/admin/students')
+    return redirect('/admin/login')
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        data = request.get_json()
+        username = data.get('username')
+        password = data.get('password')
+        
+        # Simple admin credentials (change these for production)
+        if username == 'admin' and password == 'admin123':
+            session['admin_logged_in'] = True
+            return jsonify({"success": True})
+        else:
+            return jsonify({"error": "Invalid credentials"}), 401
+    
+    return '''
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Login - AWS Certificate System</title>
+        <style>
+            body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; }
+            .login-container { background: white; padding: 3rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-width: 400px; width: 100%; }
+            .header { text-align: center; margin-bottom: 2rem; }
+            .header h1 { color: #333; margin-bottom: 0.5rem; }
+            .form-group { margin-bottom: 1.5rem; }
+            .form-group label { display: block; margin-bottom: 0.5rem; color: #555; font-weight: bold; }
+            .form-group input { width: 100%; padding: 1rem; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
+            .btn { width: 100%; padding: 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; }
+            .error { color: red; margin-top: 1rem; text-align: center; }
+        </style>
+    </head>
+    <body>
+        <div class="login-container">
+            <div class="header">
+                <h1>🔐 Admin Login</h1>
+                <p>AWS Training Certificate System</p>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <button type="submit" class="btn">Login</button>
+            </form>
+            
+            <div id="error" class="error"></div>
+        </div>
+        
+        <script>
+            document.getElementById('loginForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData);
+                
+                try {
+                    const response = await fetch('/admin/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        window.location.href = '/admin/students';
+                    } else {
+                        document.getElementById('error').textContent = result.error;
+                    }
+                } catch (error) {
+                    document.getElementById('error').textContent = 'Login failed';
+                }
+            });
+        </script>
+    </body>
+    </html>
+    '''
+
+def require_admin_auth():
+    """Check if admin is logged in"""
+    if not session.get('admin_logged_in'):
+        return redirect('/admin/login')
+    return None
 
 @app.route('/admin/students')
 def admin_students():
+    # Check authentication
+    auth_check = require_admin_auth()
+    if auth_check:
+        return auth_check
+    
     return '''
     <!DOCTYPE html>
     <html lang="en">
@@ -332,13 +430,15 @@ def admin_students():
         <title>Student Management - AWS Certificate System</title>
         <style>
             body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
-            .header { background: #007bff; color: white; padding: 1rem; text-align: center; }
+            .header { background: #007bff; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
             .container { max-width: 1200px; margin: 2rem auto; padding: 2rem; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
             .actions { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
             .btn { padding: 0.75rem 1.5rem; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; display: inline-block; }
             .btn:hover { background: #0056b3; }
             .btn-success { background: #28a745; }
             .btn-success:hover { background: #1e7e34; }
+            .btn-danger { background: #dc3545; }
+            .btn-danger:hover { background: #c82333; }
             .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
             .stat-card { background: #f8f9fa; padding: 1.5rem; border-radius: 8px; text-align: center; border-left: 4px solid #007bff; }
             .stat-card h3 { margin: 0; font-size: 2rem; color: #007bff; }
@@ -355,12 +455,20 @@ def admin_students():
             .alert { padding: 1rem; border-radius: 5px; margin: 1rem 0; }
             .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
             .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+            .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow: auto; }
+            .modal-content { background-color: white; margin: 5% auto; padding: 20px; border-radius: 10px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; }
+            .form-group { margin-bottom: 1rem; }
+            .form-group label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+            .form-group input { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 5px; }
         </style>
     </head>
     <body>
         <div class="header">
-            <h1>📊 Student Management</h1>
-            <p>AWS Training Certificate System</p>
+            <div>
+                <h1>📋 Student Management</h1>
+                <p>AWS Training Certificate System</p>
+            </div>
+            <button class="btn btn-danger" onclick="logout()">Logout</button>
         </div>
         
         <div class="container">
@@ -380,14 +488,15 @@ def admin_students():
             </div>
             
             <div class="actions">
-                <button class="btn btn-success" onclick="exportStudents()">📥 Export Excel</button>
-                <button class="btn btn-success" onclick="document.getElementById('fileInput').click()">📤 Import Excel</button>
+                <button class="btn btn-success" onclick="showAddModal()">➕ Add Student</button>
+                <button class="btn btn-success" onclick="exportStudents()">📅 Export Excel</button>
+                <button class="btn btn-success" onclick="document.getElementById('fileInput').click()">📄 Import Excel</button>
                 <button class="btn" onclick="refreshData()">🔄 Refresh</button>
                 <a href="/" class="btn">← Back to Main</a>
             </div>
             
             <div class="upload-area" id="uploadArea">
-                <h3>📤 Import Students from Excel</h3>
+                <h3>📄 Import Students from Excel</h3>
                 <p>Drag and drop an Excel file here, or click "Import Excel" to select a file</p>
                 <p><small>Supported formats: .xlsx, .xls</small></p>
                 <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFileSelect(event)">
@@ -415,6 +524,73 @@ def admin_students():
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+        
+        <!-- Add Student Modal -->
+        <div id="addModal" class="modal">
+            <div class="modal-content">
+                <h2>➕ Add New Student</h2>
+                <form id="addStudentForm">
+                    <div class="form-group">
+                        <label for="addName">Student Name:</label>
+                        <input type="text" id="addName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addBatch">Batch Number:</label>
+                        <input type="text" id="addBatch" placeholder="AWS-2024-001" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addStartDate">Start Date:</label>
+                        <input type="date" id="addStartDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addEndDate">End Date:</label>
+                        <input type="date" id="addEndDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addId">SixerClass ID:</label>
+                        <input type="text" id="addId" placeholder="SIX001" required>
+                    </div>
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button type="submit" class="btn btn-success">Add Student</button>
+                        <button type="button" class="btn" onclick="closeAddModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Edit Student Modal -->
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <h2>✏️ Edit Student</h2>
+                <form id="editStudentForm">
+                    <input type="hidden" id="editOriginalId">
+                    <div class="form-group">
+                        <label for="editName">Student Name:</label>
+                        <input type="text" id="editName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editBatch">Batch Number:</label>
+                        <input type="text" id="editBatch" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editStartDate">Start Date:</label>
+                        <input type="date" id="editStartDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEndDate">End Date:</label>
+                        <input type="date" id="editEndDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editId">SixerClass ID:</label>
+                        <input type="text" id="editId" required>
+                    </div>
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button type="submit" class="btn btn-success">Update Student</button>
+                        <button type="button" class="btn" onclick="closeEditModal()">Cancel</button>
+                    </div>
+                </form>
             </div>
         </div>
         
@@ -456,6 +632,8 @@ def admin_students():
                         <td>${student.batch_end_date}</td>
                         <td>
                             <button class="btn" onclick="generateCertificate('${student.sixerclass_id}')">📄 Certificate</button>
+                            <button class="btn" onclick="editStudent('${student.sixerclass_id}')">✏️ Edit</button>
+                            <button class="btn btn-danger" onclick="deleteStudent('${student.sixerclass_id}')">🗑️ Delete</button>
                         </td>
                     </tr>
                 `).join('');
@@ -576,16 +754,80 @@ def admin_students():
                 }
             });
             
-            async function generateCertificate(sixerclassId) {
+            async function deleteStudent(sixerclassId) {
+                if (!confirm('Are you sure you want to delete this student?')) {
+                    return;
+                }
+                
                 try {
-                    const student = allStudents.find(s => s.sixerclass_id === sixerclassId);
-                    if (!student) {
-                        showAlert('Student not found', 'error');
-                        return;
+                    const response = await fetch('/admin/api/students/delete', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ sixerclass_id: sixerclassId })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showAlert(`Student deleted successfully!`, 'success');
+                        loadStudents();
+                    } else {
+                        showAlert(`Delete failed: ${result.error}`, 'error');
                     }
+                } catch (error) {
+                    showAlert('Delete error', 'error');
+                }
+            }
+            
+            function showAddModal() {
+                document.getElementById('addModal').style.display = 'block';
+            }
+            
+            function closeAddModal() {
+                document.getElementById('addModal').style.display = 'none';
+                document.getElementById('addStudentForm').reset();
+            }
+            
+            document.getElementById('addStudentForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const studentData = {
+                    student_name: document.getElementById('addName').value,
+                    batch_number: document.getElementById('addBatch').value,
+                    batch_start_date: document.getElementById('addStartDate').value,
+                    batch_end_date: document.getElementById('addEndDate').value,
+                    sixerclass_id: document.getElementById('addId').value
+                };
+                
+                try {
+                    const response = await fetch('/admin/api/students/add', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(studentData)
+                    });
                     
-                    showAlert('Generating certificate...', 'success');
+                    const result = await response.json();
                     
+                    if (result.success) {
+                        showAlert('Student added successfully!', 'success');
+                        closeAddModal();
+                        loadStudents();
+                    } else {
+                        showAlert(`Add failed: ${result.error}`, 'error');
+                    }
+                } catch (error) {
+                    showAlert('Add student error', 'error');
+                }
+            });
+            
+            async function generateCertificate(sixerclassId) {
+                const student = allStudents.find(s => s.sixerclass_id === sixerclassId);
+                if (!student) {
+                    showAlert('Student not found', 'error');
+                    return;
+                }
+                
+                try {
                     const response = await fetch('/admin/api/generate-certificate', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -595,18 +837,90 @@ def admin_students():
                     const result = await response.json();
                     
                     if (result.success) {
+                        // Download certificate
                         const link = document.createElement('a');
                         link.href = result.download_url;
                         link.download = result.filename;
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
-                        showAlert(`Certificate generated for ${student.student_name}!`, 'success');
+                        showAlert(`Certificate generated for ${result.student_name}!`, 'success');
                     } else {
                         showAlert(`Certificate generation failed: ${result.error}`, 'error');
                     }
                 } catch (error) {
                     showAlert('Certificate generation error', 'error');
+                }
+            }
+            
+            function editStudent(sixerclassId) {
+                const student = allStudents.find(s => s.sixerclass_id === sixerclassId);
+                if (!student) {
+                    showAlert('Student not found', 'error');
+                    return;
+                }
+                
+                // Populate edit form
+                document.getElementById('editOriginalId').value = student.sixerclass_id;
+                document.getElementById('editName').value = student.student_name;
+                document.getElementById('editBatch').value = student.batch_number;
+                document.getElementById('editStartDate').value = student.batch_start_date;
+                document.getElementById('editEndDate').value = student.batch_end_date;
+                document.getElementById('editId').value = student.sixerclass_id;
+                
+                document.getElementById('editModal').style.display = 'block';
+            }
+            
+            function closeEditModal() {
+                document.getElementById('editModal').style.display = 'none';
+                document.getElementById('editStudentForm').reset();
+            }
+            
+            document.getElementById('editStudentForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const updateData = {
+                    original_sixerclass_id: document.getElementById('editOriginalId').value,
+                    student_name: document.getElementById('editName').value,
+                    batch_number: document.getElementById('editBatch').value,
+                    batch_start_date: document.getElementById('editStartDate').value,
+                    batch_end_date: document.getElementById('editEndDate').value,
+                    sixerclass_id: document.getElementById('editId').value
+                };
+                
+                try {
+                    const response = await fetch('/admin/api/students/update', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updateData)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showAlert('Student updated successfully!', 'success');
+                        closeEditModal();
+                        loadStudents();
+                    } else {
+                        showAlert(`Update failed: ${result.error}`, 'error');
+                    }
+                } catch (error) {
+                    showAlert('Update student error', 'error');
+                }
+            });
+            
+            function logout() {
+                if (confirm('Are you sure you want to logout?')) {
+                    fetch('/admin/logout', { method: 'POST' })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                window.location.href = '/admin/login';
+                            }
+                        })
+                        .catch(() => {
+                            window.location.href = '/admin/login';
+                        });
                 }
             }
             
@@ -620,6 +934,10 @@ def admin_students():
 @app.route('/admin/api/students')
 def admin_api_students():
     """Get all students with optional search"""
+    # Check authentication
+    if not session.get('admin_logged_in'):
+        return jsonify({"error": "Unauthorized"}), 401
+    
     try:
         search = request.args.get('search', '').lower()
         
@@ -645,6 +963,10 @@ def admin_api_students():
 @app.route('/admin/api/students/export')
 def admin_export_students():
     """Export students to Excel"""
+    # Check authentication
+    if not session.get('admin_logged_in'):
+        return jsonify({"error": "Unauthorized"}), 401
+    
     try:
         df = pd.DataFrame(students_data)
         
@@ -667,6 +989,10 @@ def admin_export_students():
 def admin_import_students():
     """Import students from Excel file"""
     global students_data
+    
+    # Check authentication
+    if not session.get('admin_logged_in'):
+        return jsonify({"error": "Unauthorized"}), 401
     
     try:
         if 'file' not in request.files:
@@ -750,9 +1076,179 @@ def admin_import_students():
         logger.error(f"❌ Error importing students: {e}")
         return jsonify({"error": f"Import failed: {str(e)}"}), 500
 
+@app.route('/admin/api/students/update', methods=['POST'])
+def admin_update_student():
+    """Update student details"""
+    global students_data
+    
+    # Check authentication
+    if not session.get('admin_logged_in'):
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    try:
+        data = request.get_json()
+        original_id = data.get('original_sixerclass_id')
+        
+        if not original_id:
+            return jsonify({"error": "Original SixerClass ID required"}), 400
+        
+        # Find student to update
+        student_index = None
+        for i, s in enumerate(students_data):
+            if s['sixerclass_id'] == original_id:
+                student_index = i
+                break
+        
+        if student_index is None:
+            return jsonify({"error": "Student not found"}), 404
+        
+        # Validate required fields
+        required_fields = ['student_name', 'batch_number', 'batch_start_date', 'batch_end_date', 'sixerclass_id']
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({"error": f"Missing required field: {field}"}), 400
+        
+        # Check for duplicate SixerClass ID (if changed)
+        new_id = data['sixerclass_id']
+        if new_id != original_id:
+            if any(s['sixerclass_id'] == new_id for s in students_data):
+                return jsonify({"error": f"SixerClass ID {new_id} already exists"}), 400
+        
+        # Update student
+        students_data[student_index] = {
+            'student_name': data['student_name'].strip(),
+            'batch_number': data['batch_number'].strip(),
+            'batch_start_date': data['batch_start_date'].strip(),
+            'batch_end_date': data['batch_end_date'].strip(),
+            'sixerclass_id': data['sixerclass_id'].strip()
+        }
+        
+        # Save to Excel file
+        try:
+            df = pd.DataFrame(students_data)
+            df.to_excel('excel-samples/student-data.xlsx', index=False)
+        except Exception as e:
+            logger.error(f"Error saving data: {e}")
+        
+        logger.info(f"✅ Updated student: {data['student_name']} ({data['sixerclass_id']})")
+        
+        return jsonify({
+            "success": True,
+            "message": f"Student {data['student_name']} updated successfully",
+            "student": students_data[student_index]
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Error updating student: {e}")
+        return jsonify({"error": "Failed to update student"}), 500
+
+@app.route('/admin/logout', methods=['POST'])
+def admin_logout():
+    """Admin logout"""
+    session.pop('admin_logged_in', None)
+    return jsonify({"success": True})
+
+@app.route('/admin/api/students/add', methods=['POST'])
+def admin_add_student():
+    """Add a new student manually"""
+    global students_data
+    
+    # Check authentication
+    if not session.get('admin_logged_in'):
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        required_fields = ['student_name', 'batch_number', 'batch_start_date', 'batch_end_date', 'sixerclass_id']
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({"error": f"Missing required field: {field}"}), 400
+        
+        # Check for duplicate SixerClass ID
+        if any(s['sixerclass_id'] == data['sixerclass_id'] for s in students_data):
+            return jsonify({"error": f"SixerClass ID {data['sixerclass_id']} already exists"}), 400
+        
+        # Create new student
+        new_student = {
+            'student_name': data['student_name'].strip(),
+            'batch_number': data['batch_number'].strip(),
+            'batch_start_date': data['batch_start_date'].strip(),
+            'batch_end_date': data['batch_end_date'].strip(),
+            'sixerclass_id': data['sixerclass_id'].strip()
+        }
+        
+        # Add to students_data
+        students_data.append(new_student)
+        
+        # Save to Excel file
+        try:
+            df = pd.DataFrame(students_data)
+            df.to_excel('excel-samples/student-data.xlsx', index=False)
+        except Exception as e:
+            logger.error(f"Error saving data: {e}")
+        
+        logger.info(f"✅ Added new student: {new_student['student_name']} ({new_student['sixerclass_id']})")
+        
+        return jsonify({
+            "success": True,
+            "message": f"Student {new_student['student_name']} added successfully",
+            "student": new_student
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Error adding student: {e}")
+        return jsonify({"error": "Failed to add student"}), 500
+
+@app.route('/admin/api/students/delete', methods=['POST'])
+def admin_delete_student():
+    """Delete a student"""
+    global students_data
+    
+    # Check authentication
+    if not session.get('admin_logged_in'):
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    try:
+        data = request.get_json()
+        sixerclass_id = data.get('sixerclass_id')
+        
+        if not sixerclass_id:
+            return jsonify({"error": "SixerClass ID required"}), 400
+        
+        # Find and remove student
+        original_count = len(students_data)
+        students_data = [s for s in students_data if s['sixerclass_id'] != sixerclass_id]
+        
+        if len(students_data) == original_count:
+            return jsonify({"error": "Student not found"}), 404
+        
+        # Save updated data to Excel
+        try:
+            df = pd.DataFrame(students_data)
+            df.to_excel('excel-samples/student-data.xlsx', index=False)
+        except Exception as e:
+            logger.error(f"Error saving data: {e}")
+        
+        logger.info(f"✅ Deleted student with ID: {sixerclass_id}")
+        
+        return jsonify({
+            "success": True,
+            "message": f"Student with ID {sixerclass_id} deleted successfully"
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Error deleting student: {e}")
+        return jsonify({"error": "Failed to delete student"}), 500
+
 @app.route('/admin/api/generate-certificate', methods=['POST'])
 def admin_generate_certificate():
     """Generate certificate for a student from admin panel"""
+    # Check authentication
+    if not session.get('admin_logged_in'):
+        return jsonify({"error": "Unauthorized"}), 401
+    
     try:
         data = request.get_json()
         student = data.get('student')
