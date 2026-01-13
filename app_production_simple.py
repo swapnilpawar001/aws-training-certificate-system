@@ -29,6 +29,7 @@ cert_generator = CertificateGenerator()
 
 # Global students data
 students_data = []
+download_logs = []  # Track certificate downloads
 
 def create_sample_data():
     """Create sample student data"""
@@ -130,15 +131,49 @@ def index():
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { 
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-                background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 25%, #ff6b6b 50%, #ffd93d 75%, #ff6b6b 100%);
+                background: linear-gradient(to bottom, #4A90E2, #357ABD, #2E6BA8);
                 background-size: 400% 400%;
-                animation: gradientShift 8s ease infinite;
+                animation: gradientShift 10s ease infinite;
                 min-height: 100vh; 
                 display: flex; 
                 align-items: center; 
                 justify-content: center;
                 position: relative;
                 overflow-x: hidden;
+                padding-top: 120px;
+            }
+            .company-header {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                background: rgba(255, 255, 255, 0.2);
+                backdrop-filter: blur(10px);
+                padding: 1.2rem 2rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                box-shadow: 0 6px 25px rgba(255, 107, 53, 0.3);
+                overflow: hidden;
+            }
+            .bus-animation {
+                position: absolute;
+                top: calc(50% + 50px);
+                left: -100px;
+                transform: translateY(-50%);
+                width: 305px;
+                height: 152.5px;
+                background-image: url('/static/bus.png');
+                background-size: contain;
+                background-repeat: no-repeat;
+                animation: busMove 8s linear infinite;
+                z-index: 1;
+            }
+            @keyframes busMove {
+                0% { left: -100px; }
+                100% { left: calc(100% + 100px); }
+                border-bottom: 2px solid rgba(255, 204, 2, 0.6);
             }
             @keyframes gradientShift {
                 0% { background-position: 0% 50%; }
@@ -172,13 +207,42 @@ def index():
                 transform: translateY(-5px);
                 box-shadow: 0 35px 70px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.2);
             }
+            .company-logo {
+                width: 100px;
+                height: 100px;
+                background: rgba(255,255,255,0.2);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                backdrop-filter: blur(10px);
+                overflow: hidden;
+            }
+            .company-logo img {
+                width: 305px;
+                height: 80px;
+                object-fit: contain;
+            }
+            .company-name {
+                font-size: 1.5rem;
+                font-weight: 800;
+                color: white;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                text-shadow: 0 3px 6px rgba(0,0,0,0.3);
+                text-align: center;
+                flex: 1;
+            }
+            body {
+                padding-top: 100px;
+            }
             .header { 
                 text-align: center; 
                 margin-bottom: 2.5rem;
                 position: relative;
             }
             .header h1 { 
-                background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+                background: linear-gradient(135deg, #4682b4, #4682b4);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
@@ -217,19 +281,19 @@ def index():
             }
             .form-group input:focus { 
                 outline: none; 
-                border-color: #ff6b6b;
+                border-color: #4682b4;
                 background: rgba(255,255,255,1);
-                box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1), 0 8px 25px rgba(0,0,0,0.1);
+                box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1), 0 8px 25px rgba(0,0,0,0.1);
                 transform: translateY(-2px);
             }
             .form-group input:hover {
-                border-color: #ffd93d;
+                border-color: #4682b4;
                 transform: translateY(-1px);
             }
             .btn { 
                 width: 100%; 
                 padding: 1.3rem; 
-                background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 100%);
+                background: linear-gradient(135deg, #4682b4 0%, #4682b4 100%);
                 color: white; 
                 border: none; 
                 border-radius: 15px; 
@@ -257,7 +321,7 @@ def index():
             }
             .btn:hover { 
                 transform: translateY(-3px);
-                box-shadow: 0 15px 35px rgba(255, 107, 107, 0.4);
+                box-shadow: 0 15px 35px rgba(79, 70, 229, 0.4);
             }
             .btn:active {
                 transform: translateY(-1px);
@@ -268,21 +332,21 @@ def index():
                 position: relative;
             }
             .admin-link a { 
-                color: #ff6b6b;
+                color: #4682b4;
                 text-decoration: none;
                 font-weight: 600;
                 font-size: 1rem;
                 padding: 0.8rem 1.5rem;
-                border: 2px solid #ff6b6b;
+                border: 2px solid #4682b4;
                 border-radius: 25px;
                 transition: all 0.3s ease;
                 display: inline-block;
             }
             .admin-link a:hover { 
-                background: #ff6b6b;
+                background: #4682b4;
                 color: white;
                 transform: translateY(-2px);
-                box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+                box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
             }
             .floating-shapes {
                 position: absolute;
@@ -298,22 +362,22 @@ def index():
                 animation: float 6s ease-in-out infinite;
             }
             .shape:nth-child(1) {
-                width: 80px;
+                width: 305px;
                 height: 80px;
                 top: 10%;
                 left: 10%;
                 animation-delay: 0s;
             }
             .shape:nth-child(2) {
-                width: 120px;
+                width: 305px;
                 height: 120px;
                 top: 70%;
                 right: 10%;
                 animation-delay: 2s;
             }
             .shape:nth-child(3) {
-                width: 60px;
-                height: 60px;
+                width: 100px;
+                height: 100px;
                 top: 40%;
                 left: 80%;
                 animation-delay: 4s;
@@ -331,6 +395,16 @@ def index():
         </style>
     </head>
     <body>
+        <div class="company-header">
+            <div class="bus-animation"></div>
+            <div class="company-logo">
+                <img src="/static/Magicbus_logo.png" alt="Magic Bus Logo">
+            </div>
+            <div class="company-name">Magic Bus India Foundation</div>
+            <div class="company-logo">
+                <img src="/static/Magicbus_logo.png" alt="Magic Bus Logo">
+            </div>
+        </div>
         <div class="floating-shapes">
             <div class="shape"></div>
             <div class="shape"></div>
@@ -413,6 +487,19 @@ def index():
     </html>
     '''
 
+@app.route('/static/<filename>')
+def serve_static(filename):
+    """Serve static files like logo"""
+    try:
+        if filename == 'Magicbus_logo.png':
+            return send_file('aws-final-deployment/Magicbus_logo.png', mimetype='image/png')
+        elif filename == 'bus.png':
+            return send_file('aws-final-deployment/bus.png', mimetype='image/png')
+        return jsonify({"error": "File not found"}), 404
+    except Exception as e:
+        logger.error(f"❌ Error serving static file: {e}")
+        return jsonify({"error": "File serving failed"}), 500
+
 @app.route('/api/check-status')
 def check_status():
     return jsonify({
@@ -468,6 +555,14 @@ def download_certificate():
         success = cert_generator.create_certificate(student, filepath)
         
         if success:
+            # Log the download
+            download_logs.append({
+                'student_name': student['student_name'],
+                'sixerclass_id': student['sixerclass_id'],
+                'batch_number': student['batch_number'],
+                'download_time': datetime.now().isoformat(),
+                'filename': filename
+            })
             logger.info(f"✅ Certificate generated: {filename}")
             return jsonify({
                 "success": True,
@@ -538,7 +633,7 @@ def admin_login():
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { 
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 25%, #ff6b6b 50%, #ffd93d 75%, #ff6b6b 100%);
+                background: linear-gradient(to bottom, #4A90E2, #357ABD, #2E6BA8);
                 background-size: 400% 400%;
                 animation: gradientShift 8s ease infinite;
                 min-height: 100vh; 
@@ -585,11 +680,11 @@ def admin_login():
                 margin-bottom: 2.5rem;
             }
             .header h1 { 
-                background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+                background: linear-gradient(to right, #0D47A1, #1565C0, #1976D2);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
-                font-size: 2rem;
+                font-size: 1.5rem;
                 font-weight: 700;
                 margin-bottom: 0.5rem;
             }
@@ -622,19 +717,19 @@ def admin_login():
             }
             .form-group input:focus {
                 outline: none;
-                border-color: #ff6b6b;
+                border-color: #4682b4;
                 background: rgba(255,255,255,1);
-                box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1), 0 8px 25px rgba(0,0,0,0.1);
+                box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1), 0 8px 25px rgba(0,0,0,0.1);
                 transform: translateY(-2px);
             }
             .form-group input:hover {
-                border-color: #ffd93d;
+                border-color: #6bb6cd;
                 transform: translateY(-1px);
             }
             .btn { 
                 width: 100%; 
                 padding: 1.3rem; 
-                background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 100%);
+                background: linear-gradient(to right, #0D47A1, #1565C0, #1976D2);
                 color: white; 
                 border: none; 
                 border-radius: 15px; 
@@ -662,23 +757,23 @@ def admin_login():
             }
             .btn:hover {
                 transform: translateY(-3px);
-                box-shadow: 0 15px 35px rgba(255, 107, 107, 0.4);
+                box-shadow: 0 15px 35px rgba(79, 70, 229, 0.4);
             }
             .error { 
-                color: #ff6b6b;
+                color: #4682b4;
                 margin-top: 1.5rem; 
                 text-align: center;
                 font-weight: 600;
                 padding: 1rem;
-                background: rgba(255, 107, 107, 0.1);
+                background: rgba(79, 70, 229, 0.1);
                 border-radius: 10px;
-                border: 1px solid rgba(255, 107, 107, 0.2);
+                border: 1px solid rgba(79, 70, 229, 0.2);
             }
             .admin-badge {
                 position: absolute;
                 top: -15px;
                 right: -15px;
-                background: linear-gradient(135deg, #ffd93d, #ff6b6b);
+                background: linear-gradient(135deg, #6bb6cd, #4682b4);
                 color: white;
                 padding: 0.5rem 1rem;
                 border-radius: 20px;
@@ -689,9 +784,10 @@ def admin_login():
                 box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             }
             .back-link {
-                position: absolute;
-                top: 20px;
+                position: fixed;
+                top: 140px;
                 left: 20px;
+                z-index: 9999; pointer-events: none; position: absolute; opacity: 1; display: block;
                 color: white;
                 text-decoration: none;
                 font-weight: 600;
@@ -702,10 +798,47 @@ def admin_login():
                 transition: all 0.3s ease;
                 border: 1px solid rgba(255,255,255,0.3);
             }
-            .back-link:hover {
-                background: rgba(255,255,255,0.3);
-                transform: translateY(-2px);
-                box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            .company-header {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                background: linear-gradient(to right, #0D47A1, #1565C0, #1976D2);
+                padding: 1rem 2rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            }
+            .company-logo {
+                width: 100px;
+                height: 100px;
+                background: rgba(255,255,255,0.2);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                backdrop-filter: blur(10px);
+                overflow: hidden;
+            }
+            .company-logo img {
+                width: 305px;
+                height: 80px;
+                object-fit: contain;
+            }
+            .company-name {
+                font-size: 1.5rem;
+                font-weight: 800;
+                color: white;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                text-shadow: 0 3px 6px rgba(0,0,0,0.3);
+                text-align: center;
+                flex: 1;
+            }
+            body {
+                padding-top: 100px;
             }
             @media (max-width: 768px) {
                 .login-container { padding: 2.5rem; margin: 1rem; }
@@ -714,6 +847,16 @@ def admin_login():
         </style>
     </head>
     <body>
+        <div class="company-header">
+            <div class="bus-animation"></div>
+            <div class="company-logo">
+                <img src="/static/Magicbus_logo.png" alt="Magic Bus Logo">
+            </div>
+            <div class="company-name">Magic Bus India Foundation</div>
+            <div class="company-logo">
+                <img src="/static/Magicbus_logo.png" alt="Magic Bus Logo">
+            </div>
+        </div>
         <a href="/" class="back-link">← Back to Home</a>
         <div class="login-container">
             <div class="admin-badge">Admin</div>
@@ -793,11 +936,71 @@ def admin_students():
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { 
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 100%);
+                background: linear-gradient(to bottom, #4A90E2, #357ABD, #2E6BA8);
                 min-height: 100vh;
+                padding-top: 120px;
+            }
+            .company-header {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                background: rgba(255, 255, 255, 0.2);
+                backdrop-filter: blur(10px);
+                padding: 1.2rem 2rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                box-shadow: 0 6px 25px rgba(255, 107, 53, 0.3);
+                overflow: hidden;
+            }
+            .bus-animation {
+                position: absolute;
+                top: calc(50% + 50px);
+                left: -100px;
+                transform: translateY(-50%);
+                width: 305px;
+                height: 152.5px;
+                background-image: url('/static/bus.png');
+                background-size: contain;
+                background-repeat: no-repeat;
+                animation: busMove 8s linear infinite;
+                z-index: 1;
+            }
+            @keyframes busMove {
+                0% { left: -100px; }
+                100% { left: calc(100% + 100px); }
+                border-bottom: 2px solid rgba(255, 204, 2, 0.6);
+            }
+            .company-logo-admin {
+                width: 100px;
+                height: 100px;
+                background: rgba(255,255,255,0.2);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                backdrop-filter: blur(10px);
+                overflow: hidden;
+            }
+            .company-logo-admin img {
+                width: 305px;
+                height: 80px;
+                object-fit: contain;
+            }
+            .company-name {
+                font-size: 1.5rem;
+                font-weight: 800;
+                color: white;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                text-shadow: 0 3px 6px rgba(0,0,0,0.3);
+                text-align: center;
+                flex: 1;
             }
             .header { 
-                background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 100%);
+                background: linear-gradient(to right, #0D47A1, #1565C0, #1976D2);
                 color: white; 
                 padding: 1.5rem; 
                 display: flex; 
@@ -806,6 +1009,40 @@ def admin_students():
                 box-shadow: 0 4px 20px rgba(0,0,0,0.1);
                 position: relative;
             }
+            .header-content {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+            .company-logo-admin {
+                width: 50px;
+                height: 50px;
+                background: rgba(255,255,255,0.2);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                backdrop-filter: blur(10px);
+                overflow: hidden;
+            }
+            .company-logo-admin img {
+                width: 35px;
+                height: 35px;
+                object-fit: contain;
+            }
+            .header-text h1 {
+                font-size: 1.8rem;
+                font-weight: 700;
+                text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                margin: 0;
+            }
+            .company-name-admin {
+                font-size: 0.9rem;
+                opacity: 0.9;
+                margin: 0;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
             .header::after {
                 content: '';
                 position: absolute;
@@ -813,7 +1050,7 @@ def admin_students():
                 left: 0;
                 right: 0;
                 height: 3px;
-                background: linear-gradient(90deg, #ffd93d, #ff6b6b, #ffd93d);
+                background: linear-gradient(90deg, #6bb6cd, #4682b4, #6bb6cd);
             }
             .header h1 {
                 font-size: 1.8rem;
@@ -843,9 +1080,10 @@ def admin_students():
             }
             .btn { 
                 padding: 0.9rem 1.8rem; 
-                background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+                background: rgba(79, 70, 229, 0.2);
+                backdrop-filter: blur(10px);
                 color: white; 
-                border: none; 
+                border: 1px solid rgba(255, 255, 255, 0.2);
                 border-radius: 12px; 
                 cursor: pointer; 
                 text-decoration: none; 
@@ -873,19 +1111,19 @@ def admin_students():
             }
             .btn:hover { 
                 transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+                box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
             }
             .btn-success { 
-                background: linear-gradient(135deg, #ffd93d, #ff6b6b);
+                background: linear-gradient(135deg, #6bb6cd, #4682b4);
             }
             .btn-success:hover { 
-                box-shadow: 0 8px 25px rgba(255, 217, 61, 0.3);
+                box-shadow: 0 8px 25px rgba(124, 58, 237, 0.3);
             }
             .btn-danger { 
-                background: linear-gradient(135deg, #ff6b6b, #ff4757);
+                background: linear-gradient(135deg, #4682b4, #ff4757);
             }
             .btn-danger:hover { 
-                box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+                box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
             }
             .stats { 
                 display: grid; 
@@ -894,11 +1132,11 @@ def admin_students():
                 margin-bottom: 2.5rem;
             }
             .stat-card { 
-                background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 217, 61, 0.1));
+                background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(124, 58, 237, 0.1));
                 padding: 2rem; 
                 border-radius: 15px; 
                 text-align: center; 
-                border: 2px solid rgba(255, 107, 107, 0.2);
+                border: 2px solid rgba(79, 70, 229, 0.2);
                 transition: all 0.3s ease;
                 position: relative;
                 overflow: hidden;
@@ -910,17 +1148,17 @@ def admin_students():
                 left: 0;
                 right: 0;
                 height: 4px;
-                background: linear-gradient(90deg, #ff6b6b, #ffd93d);
+                background: linear-gradient(90deg, #4682b4, #6bb6cd);
             }
             .stat-card:hover {
                 transform: translateY(-5px);
-                box-shadow: 0 15px 30px rgba(255, 107, 107, 0.2);
-                border-color: rgba(255, 107, 107, 0.4);
+                box-shadow: 0 15px 30px rgba(79, 70, 229, 0.2);
+                border-color: rgba(79, 70, 229, 0.4);
             }
             .stat-card h3 { 
                 margin: 0; 
-                font-size: 2.5rem; 
-                background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+                font-size: 2rem; 
+                background: linear-gradient(to right, #0D47A1, #1565C0, #1976D2);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
@@ -951,7 +1189,7 @@ def admin_students():
                 border-bottom: 1px solid #f0f0f0;
             }
             th { 
-                background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+                background: linear-gradient(to right, #0D47A1, #1565C0, #1976D2);
                 color: white;
                 font-weight: 600;
                 text-transform: uppercase;
@@ -959,7 +1197,7 @@ def admin_students():
                 font-size: 0.9rem;
             }
             tr:hover { 
-                background: linear-gradient(135deg, rgba(255, 107, 107, 0.05), rgba(255, 217, 61, 0.05));
+                background: linear-gradient(135deg, rgba(79, 70, 229, 0.05), rgba(124, 58, 237, 0.05));
             }
             .search-box { 
                 width: 100%; 
@@ -973,25 +1211,25 @@ def admin_students():
             }
             .search-box:focus {
                 outline: none;
-                border-color: #ff6b6b;
-                box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+                border-color: #4682b4;
+                box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
             }
             .upload-area { 
-                border: 3px dashed #ff6b6b;
+                border: 3px dashed #4682b4;
                 border-radius: 15px; 
                 padding: 2.5rem; 
                 text-align: center; 
                 margin: 1.5rem 0; 
-                background: linear-gradient(135deg, rgba(255, 107, 107, 0.05), rgba(255, 217, 61, 0.05));
+                background: linear-gradient(135deg, rgba(79, 70, 229, 0.05), rgba(124, 58, 237, 0.05));
                 transition: all 0.3s ease;
             }
             .upload-area.dragover { 
-                background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 217, 61, 0.1));
-                border-color: #ffd93d;
+                background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(124, 58, 237, 0.1));
+                border-color: #6bb6cd;
                 transform: scale(1.02);
             }
             .upload-area h3 {
-                color: #ff6b6b;
+                color: #4682b4;
                 margin-bottom: 1rem;
                 font-size: 1.3rem;
             }
@@ -1003,14 +1241,14 @@ def admin_students():
                 font-weight: 600;
             }
             .alert-success { 
-                background: linear-gradient(135deg, rgba(255, 217, 61, 0.1), rgba(255, 107, 107, 0.1));
-                color: #ff6b6b;
-                border: 2px solid rgba(255, 217, 61, 0.3);
+                background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(79, 70, 229, 0.1));
+                color: #4682b4;
+                border: 2px solid rgba(124, 58, 237, 0.3);
             }
             .alert-error { 
-                background: rgba(255, 107, 107, 0.1);
-                color: #ff6b6b;
-                border: 2px solid rgba(255, 107, 107, 0.3);
+                background: rgba(79, 70, 229, 0.1);
+                color: #4682b4;
+                border: 2px solid rgba(79, 70, 229, 0.3);
             }
             .modal { 
                 display: none; 
@@ -1038,7 +1276,7 @@ def admin_students():
                 border: 1px solid rgba(255,255,255,0.2);
             }
             .modal-content h2 {
-                background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+                background: linear-gradient(to right, #0D47A1, #1565C0, #1976D2);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
@@ -1067,8 +1305,8 @@ def admin_students():
             }
             .form-group input:focus {
                 outline: none;
-                border-color: #ff6b6b;
-                box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+                border-color: #4682b4;
+                box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
             }
             @media (max-width: 768px) {
                 .container { margin: 1rem; padding: 1.5rem; }
@@ -1079,10 +1317,22 @@ def admin_students():
         </style>
     </head>
     <body>
+        <div class="company-header">
+            <div class="bus-animation"></div>
+            <div class="company-logo-admin">
+                <img src="/static/Magicbus_logo.png" alt="Magic Bus Logo">
+            </div>
+            <div class="company-name">Magic Bus India Foundation</div>
+            <div class="company-logo-admin">
+                <img src="/static/Magicbus_logo.png" alt="Magic Bus Logo">
+            </div>
+        </div>
         <div class="header">
-            <div>
-                <h1>📋 Student Management</h1>
-                <p>AWS Training Certificate System</p>
+            <div class="header-content">
+                <div class="header-text">
+                    <h1>📋 Student Management</h1>
+                    <p>AWS Training Certificate System</p>
+                </div>
             </div>
             <button class="btn btn-danger" onclick="logout()">Logout</button>
         </div>
@@ -1107,8 +1357,9 @@ def admin_students():
                 <button class="btn btn-success" onclick="showAddModal()">➕ Add Student</button>
                 <button class="btn btn-success" onclick="exportStudents()">📅 Export Excel</button>
                 <button class="btn btn-success" onclick="document.getElementById('fileInput').click()">📄 Import Excel</button>
-                <button class="btn" onclick="refreshData()">🔄 Refresh</button>
-                <a href="/" class="btn">← Back to Main</a>
+                <button class="btn btn-success" onclick="showReports()">📊 Reports</button>
+                <button class="btn btn-success" onclick="refreshData()">🔄 Refresh</button>
+                <a href="/" class="btn btn-success">← Back to Main</a>
             </div>
             
             <div class="upload-area" id="uploadArea">
@@ -1176,7 +1427,48 @@ def admin_students():
             </div>
         </div>
         
-        <!-- Edit Student Modal -->
+        <!-- Reports Modal -->
+        <div id="reportsModal" class="modal">
+            <div class="modal-content" style="max-width: 800px;">
+                <h2>📊 Certificate Download Reports</h2>
+                <div id="reportsContent">
+                    <div class="stats" style="margin-bottom: 2rem;">
+                        <div class="stat-card">
+                            <h3 id="totalDownloads">0</h3>
+                            <p>Total Downloads</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 id="uniqueStudents">0</h3>
+                            <p>Students Downloaded</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 id="avgDownloads">0</h3>
+                            <p>Avg Downloads/Student</p>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>SixerClass ID</th>
+                                    <th>Batch</th>
+                                    <th>Downloads</th>
+                                    <th>Last Download</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportsTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div style="margin-top: 2rem;">
+                    <button class="btn btn-success" onclick="exportReports()">📄 Export Report</button>
+                    <button class="btn btn-success" onclick="exportDownloadStatus()">📋 Export Download Status</button>
+                    <button class="btn" onclick="closeReportsModal()">Close</button>
+                </div>
+            </div>
+        </div>
         <div id="editModal" class="modal">
             <div class="modal-content">
                 <h2>✏️ Edit Student</h2>
@@ -1247,8 +1539,8 @@ def admin_students():
                         <td>${student.batch_start_date}</td>
                         <td>${student.batch_end_date}</td>
                         <td>
-                            <button class="btn" onclick="generateCertificate('${student.sixerclass_id}')">📄 Certificate</button>
-                            <button class="btn" onclick="editStudent('${student.sixerclass_id}')">✏️ Edit</button>
+                            <button class="btn btn-success" onclick="generateCertificate('${student.sixerclass_id}')">📄 Certificate</button>
+                            <button class="btn btn-success" onclick="editStudent('${student.sixerclass_id}')">✏️ Edit</button>
                             <button class="btn btn-danger" onclick="deleteStudent('${student.sixerclass_id}')">🗑️ Delete</button>
                         </td>
                     </tr>
@@ -1537,6 +1829,96 @@ def admin_students():
                         .catch(() => {
                             window.location.href = '/admin/login';
                         });
+                }
+            }
+            
+            function showReports() {
+                document.getElementById('reportsModal').style.display = 'block';
+                loadReports();
+            }
+            
+            function closeReportsModal() {
+                document.getElementById('reportsModal').style.display = 'none';
+            }
+            
+            async function loadReports() {
+                try {
+                    const response = await fetch('/admin/api/reports');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        displayReports(data.reports);
+                    } else {
+                        showAlert('Failed to load reports', 'error');
+                    }
+                } catch (error) {
+                    showAlert('Error loading reports', 'error');
+                }
+            }
+            
+            function displayReports(reports) {
+                document.getElementById('totalDownloads').textContent = reports.total_downloads;
+                document.getElementById('uniqueStudents').textContent = reports.unique_students;
+                document.getElementById('avgDownloads').textContent = reports.avg_downloads;
+                
+                const tbody = document.getElementById('reportsTableBody');
+                if (reports.student_downloads.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No downloads recorded</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = reports.student_downloads.map(student => `
+                    <tr>
+                        <td>${student.student_name}</td>
+                        <td>${student.sixerclass_id}</td>
+                        <td>${student.batch_number}</td>
+                        <td>${student.download_count}</td>
+                        <td>${new Date(student.last_download).toLocaleString()}</td>
+                    </tr>
+                `).join('');
+            }
+            
+            async function exportReports() {
+                try {
+                    const response = await fetch('/admin/api/reports/export');
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `certificate_reports_${new Date().toISOString().split('T')[0]}.xlsx`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                        showAlert('Reports exported successfully!', 'success');
+                    } else {
+                        showAlert('Export failed', 'error');
+                    }
+                } catch (error) {
+                    showAlert('Export error', 'error');
+                }
+            }
+            
+            async function exportDownloadStatus() {
+                try {
+                    const response = await fetch('/admin/api/download-status/export');
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `download_status_${new Date().toISOString().split('T')[0]}.xlsx`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                        showAlert('Download status exported successfully!', 'success');
+                    } else {
+                        showAlert('Export failed', 'error');
+                    }
+                } catch (error) {
+                    showAlert('Export error', 'error');
                 }
             }
             
@@ -1893,6 +2275,133 @@ def admin_generate_certificate():
     except Exception as e:
         logger.error(f"❌ Admin certificate error: {e}")
         return jsonify({"error": "Certificate generation failed"}), 500
+
+@app.route('/admin/api/reports')
+def admin_reports():
+    """Get certificate download reports"""
+    if not session.get('admin_logged_in'):
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    try:
+        # Calculate statistics
+        total_downloads = len(download_logs)
+        unique_students = len(set(log['sixerclass_id'] for log in download_logs))
+        avg_downloads = round(total_downloads / unique_students, 1) if unique_students > 0 else 0
+        
+        # Group downloads by student
+        student_downloads = {}
+        for log in download_logs:
+            sid = log['sixerclass_id']
+            if sid not in student_downloads:
+                student_downloads[sid] = {
+                    'student_name': log['student_name'],
+                    'sixerclass_id': log['sixerclass_id'],
+                    'batch_number': log['batch_number'],
+                    'download_count': 0,
+                    'last_download': log['download_time']
+                }
+            student_downloads[sid]['download_count'] += 1
+            if log['download_time'] > student_downloads[sid]['last_download']:
+                student_downloads[sid]['last_download'] = log['download_time']
+        
+        return jsonify({
+            "success": True,
+            "reports": {
+                "total_downloads": total_downloads,
+                "unique_students": unique_students,
+                "avg_downloads": avg_downloads,
+                "student_downloads": list(student_downloads.values())
+            }
+        })
+    except Exception as e:
+        logger.error(f"❌ Error generating reports: {e}")
+        return jsonify({"error": "Failed to generate reports"}), 500
+
+@app.route('/admin/api/reports/export')
+def admin_export_reports():
+    """Export certificate download reports to Excel"""
+    if not session.get('admin_logged_in'):
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    try:
+        # Prepare data for export
+        export_data = []
+        for log in download_logs:
+            export_data.append({
+                'Student Name': log['student_name'],
+                'SixerClass ID': log['sixerclass_id'],
+                'Batch Number': log['batch_number'],
+                'Download Time': log['download_time'],
+                'Filename': log['filename']
+            })
+        
+        df = pd.DataFrame(export_data)
+        
+        # Create filename with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"certificate_reports_{timestamp}.xlsx"
+        filepath = os.path.join(app.config['EXCEL_DIR'], filename)
+        
+        # Export to Excel
+        df.to_excel(filepath, index=False, engine='openpyxl')
+        
+        logger.info(f"✅ Reports exported to: {filename}")
+        return send_file(filepath, as_attachment=True, download_name=filename)
+        
+    except Exception as e:
+        logger.error(f"❌ Error exporting reports: {e}")
+        return jsonify({"error": "Export failed"}), 500
+
+@app.route('/admin/api/download-status/export')
+def admin_export_download_status():
+    """Export list of students with download status (downloaded/not downloaded)"""
+    if not session.get('admin_logged_in'):
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    try:
+        # Get students who have downloaded certificates
+        downloaded_students = set(log['sixerclass_id'] for log in download_logs)
+        
+        # Prepare data for export
+        export_data = []
+        for student in students_data:
+            has_downloaded = student['sixerclass_id'] in downloaded_students
+            download_count = sum(1 for log in download_logs if log['sixerclass_id'] == student['sixerclass_id'])
+            
+            # Get last download time if exists
+            last_download = None
+            for log in reversed(download_logs):
+                if log['sixerclass_id'] == student['sixerclass_id']:
+                    last_download = log['download_time']
+                    break
+            
+            export_data.append({
+                'Student Name': student['student_name'],
+                'SixerClass ID': student['sixerclass_id'],
+                'Batch Number': student['batch_number'],
+                'Batch Start Date': student['batch_start_date'],
+                'Batch End Date': student['batch_end_date'],
+                'Certificate Downloaded': 'Yes' if has_downloaded else 'No',
+                'Download Count': download_count,
+                'Last Download': last_download if last_download else 'Never'
+            })
+        
+        df = pd.DataFrame(export_data)
+        
+        # Create filename with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"download_status_{timestamp}.xlsx"
+        filepath = os.path.join(app.config['EXCEL_DIR'], filename)
+        
+        # Export to Excel
+        df.to_excel(filepath, index=False, engine='openpyxl')
+        
+        logger.info(f"✅ Download status exported to: {filename}")
+        return send_file(filepath, as_attachment=True, download_name=filename)
+        
+    except Exception as e:
+        logger.error(f"❌ Error exporting download status: {e}")
+        return jsonify({"error": "Export failed"}), 500
 
 if __name__ == '__main__':
     logger.info("🚀 Starting AWS Training Certificate System - Production Ready")
